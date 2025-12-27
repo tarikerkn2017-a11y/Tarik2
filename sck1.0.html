@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>ULTRA CLICKER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+ margin:0;background:#0f0f0f;color:white;
+ font-family:Arial;text-align:center
+}
+h1{margin-top:10px}
+#score{font-size:30px;margin:10px}
+img{
+ width:200px;max-width:80vw;
+ cursor:pointer;transition:.1s
+}
+img:active{transform:scale(.95)}
+button{
+ background:#28a745;color:white;
+ border:none;padding:8px 14px;
+ border-radius:6px;margin:5px;
+ font-size:16px
+}
+button:disabled{background:#555}
+.small{font-size:12px;color:#ffcc00}
+
+#panel{
+ display:flex;flex-direction:column;
+ align-items:center
+}
+
+/* MODAL */
+#modal{
+ display:none;position:fixed;
+ top:0;left:0;width:100%;height:100%;
+ background:rgba(0,0,0,.9);
+ justify-content:center;align-items:center
+}
+#modalBox{
+ background:#1e1e1e;
+ padding:20px;border-radius:12px;
+ width:90%;max-width:320px
+}
+input{
+ width:100%;padding:6px;margin:5px 0
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 ULTRA CLICKER 🔥</h1>
+<div id="score">Skor: 0</div>
+<div class="small">Prestige Bonus: x<span id="bonus">1</span></div>
+
+<img id="clickImg"
+src="https://images.unsplash.com/photo-1613454320437-0c228c8b1723?q=80&w=687&auto=format&fit=crop">
+
+<div id="panel">
+<button onclick="openDemo()">💳 AutoClicker (DEMO)</button>
+<button onclick="doPrestige()">🧠 PRESTIGE</button>
+<div id="status"></div>
+</div>
+
+<!-- DEMO MODAL -->
+<div id="modal">
+ <div id="modalBox">
+  <h3>💳 DEMO ÖDEME</h3>
+  <div class="small">⚠️</div>
+  <input placeholder="Kart No ">
+  <input placeholder="SKT (MM/YY)">
+  <input placeholder="CVC">
+  <button onclick="confirmDemo()">Ödemeyi Tamamla</button>
+ </div>
+</div>
+
+<audio id="cash">
+ <source src="https://www.myinstants.com/media/sounds/cash-register.mp3">
+</audio>
+
+<script>
+/* LOAD */
+let score = Number(localStorage.getItem("score")) || 0;
+let prestige = Number(localStorage.getItem("prestige")) || 0;
+let auto = localStorage.getItem("auto")==="1";
+let autoInt = null;
+
+let baseClick = 999999999999999999999999;
+let prestigeBonus = 1 + prestige * 0.5;
+
+const scoreDiv = document.getElementById("score");
+const bonusDiv = document.getElementById("bonus");
+const statusDiv = document.getElementById("status");
+const cashSound = document.getElementById("cash");
+
+function updateUI(){
+ scoreDiv.innerText="Skor: "+score;
+ bonusDiv.innerText=prestigeBonus.toFixed(1);
+ localStorage.setItem("score",score);
+ localStorage.setItem("prestige",prestige);
+}
+
+/* CLICK */
+document.getElementById("clickImg").onclick=()=>{
+ score += Math.floor(baseClick * prestigeBonus);
+ updateUI();
+};
+
+/* AUTOCLICKER */
+function startAuto(){
+ if(autoInt) return;
+ autoInt=setInterval(()=>{
+  score += Math.floor(64 * prestigeBonus);
+  updateUI();
+ },1000);
+}
+
+if(auto){
+ statusDiv.innerText="✅ AutoClicker Aktif";
+ startAuto();
+}
+
+/* DEMO PAYMENT */
+function openDemo(){
+ if(auto){alert("Zaten aktif 😄");return;}
+ document.getElementById("modal").style.display="flex";
+}
+
+function confirmDemo(){
+ auto=true;
+ localStorage.setItem("auto","1");
+ document.getElementById("modal").style.display="none";
+ statusDiv.innerText="✅ AutoClicker Aktif (DEMO)";
+ cashSound.play();
+ startAuto();
+}
+
+/* PRESTIGE */
+function doPrestige(){
+ if(score < 99999999999999){
+  alert("Prestige için 1 skor lazım");
+  return;
+ }
+ if(!confirm("Prestige yaparsan skor sıfırlanır ama bonus artar!")) return;
+
+ score = 0;
+ prestige++;
+ prestigeBonus = 1 + prestige * 0.0;
+ updateUI();
+ alert("🧠 kazıklandın enayi");
+}
+
+/* INIT */
+updateUI();
+</script>
+
+</body>
+</html>
